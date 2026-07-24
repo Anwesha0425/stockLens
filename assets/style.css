@@ -1,0 +1,232 @@
+/* =====================================================
+   Stock Price Prediction — Dark Glassmorphism Theme
+   ===================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg-deep:       #050a0f;
+  --bg-dark:       #0d1117;
+  --bg-card:       rgba(22, 27, 34, 0.85);
+  --bg-card-hover: rgba(33, 38, 45, 0.95);
+  --border:        rgba(48, 54, 61, 0.8);
+  --border-glow:   rgba(88, 166, 255, 0.3);
+  --text-primary:  #e6edf3;
+  --text-secondary:#8b949e;
+  --text-muted:    #484f58;
+  --accent-blue:   #58a6ff;
+  --accent-green:  #3fb950;
+  --accent-red:    #f85149;
+  --accent-orange: #f0883e;
+  --accent-purple: #bc8cff;
+  --gradient-1:    linear-gradient(135deg, #1a1f2e 0%, #0d1117 100%);
+  --gradient-glow: linear-gradient(135deg, rgba(88,166,255,0.15), rgba(188,140,255,0.1));
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif !important;
+  background: var(--bg-deep) !important;
+  color: var(--text-primary) !important;
+  min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(88,166,255,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(188,140,255,0.04) 0%, transparent 60%);
+}
+
+/* ── Header ── */
+.header-band {
+  background: linear-gradient(90deg, rgba(88,166,255,0.12), rgba(188,140,255,0.1));
+  border-bottom: 1px solid var(--border);
+  padding: 1.25rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  backdrop-filter: blur(20px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-band h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header-icon {
+  font-size: 1.8rem;
+}
+
+/* ── Metric Cards ── */
+.metric-strip {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem 2rem 0.5rem;
+  flex-wrap: wrap;
+}
+
+.metric-card {
+  flex: 1 1 160px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.3s;
+  backdrop-filter: blur(10px);
+}
+
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+}
+
+.metric-card:hover {
+  border-color: var(--border-glow);
+  transform: translateY(-2px);
+}
+
+.metric-label {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+}
+
+.metric-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
+  margin-top: 0.3rem;
+}
+
+.metric-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
+/* ── Controls Bar ── */
+.controls-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 2rem;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.control-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ── Dash components overrides ── */
+.Select-control,
+.VirtualizedSelectFocusedOption,
+.Select-menu-outer {
+  background: #161b22 !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+
+.Select-value-label {
+  color: var(--accent-blue) !important;
+}
+
+.Select-placeholder {
+  color: var(--text-muted) !important;
+}
+
+.Select-option {
+  background: #161b22 !important;
+  color: var(--text-primary) !important;
+}
+
+.Select-option:hover,
+.Select-option.is-focused {
+  background: rgba(88,166,255,0.1) !important;
+}
+
+/* ── Tab styling ── */
+.custom-tabs .tab {
+  background: transparent !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text-secondary) !important;
+  border-radius: 8px 8px 0 0 !important;
+  font-weight: 500 !important;
+  transition: all 0.2s !important;
+}
+
+.custom-tabs .tab--selected {
+  background: var(--bg-card) !important;
+  border-color: var(--accent-blue) !important;
+  color: var(--accent-blue) !important;
+}
+
+.custom-tabs .tab-content {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 0 8px 8px 8px !important;
+  padding: 1.5rem !important;
+}
+
+/* ── Section headings ── */
+.section-heading {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ── Alert / info box ── */
+.info-box {
+  background: rgba(88,166,255,0.08);
+  border: 1px solid rgba(88,166,255,0.2);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+/* ── Slider ── */
+.rc-slider-track { background-color: var(--accent-blue) !important; }
+.rc-slider-handle { border-color: var(--accent-blue) !important; background: var(--accent-blue) !important; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .metric-strip { padding: 1rem; }
+  .controls-bar { padding: 0.75rem 1rem; }
+  .header-band { padding: 1rem; }
+  .header-band h1 { font-size: 1.1rem; }
+}

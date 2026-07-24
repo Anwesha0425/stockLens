@@ -1,0 +1,10 @@
+yfinance==0.2.51
+pandas
+numpy
+matplotlib
+scikit-learn
+tensorflow
+keras
+dash==2.18.2
+plotly
+dash-bootstrap-components

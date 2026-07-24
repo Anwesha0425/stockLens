@@ -1,0 +1,190 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── CSS Custom Properties ───────────────────────────────────────────────── */
+:root {
+  /* Autumn Day Mode */
+  --bg:         #F5F0E8;
+  --surface:    #EDE5D0;
+  --surface2:   #E4D9C0;
+  --border:     #D4C8A8;
+  --primary:    #6B7C3A;
+  --secondary:  #8B3A3A;
+  --accent:     #C9A84C;
+  --text:       #2C1810;
+  --muted:      #7A6A5A;
+  --success:    #4A7A3A;
+  --danger:     #A03030;
+  --chart1:     #6B7C3A;
+  --chart2:     #8B3A3A;
+  --chart3:     #C9A84C;
+  --chart4:     #A05A2C;
+  --chart5:     #5A7A60;
+}
+
+.dark {
+  /* Royal Night Mode */
+  --bg:         #0F0A1E;
+  --surface:    #1A1130;
+  --surface2:   #221840;
+  --border:     #2D2050;
+  --primary:    #8B7FC4;
+  --secondary:  #C4A882;
+  --accent:     #E8D5A3;
+  --text:       #EDE8F5;
+  --muted:      #9B94B8;
+  --success:    #6BCB8B;
+  --danger:     #F08080;
+  --chart1:     #8B7FC4;
+  --chart2:     #C4A882;
+  --chart3:     #E8D5A3;
+  --chart4:     #7BC4B0;
+  --chart5:     #D4A0C0;
+}
+
+/* ── Base Styles ─────────────────────────────────────────────────────────── */
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* ── Card ────────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+}
+
+/* ── Metric Card Top Bar ─────────────────────────────────────────────────── */
+.metric-bar::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  border-radius: 12px 12px 0 0;
+}
+
+/* ── Tab ─────────────────────────────────────────────────────────────────── */
+.tab-btn {
+  padding: 0.5rem 1.1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--muted);
+  border: 1px solid transparent;
+  transition: all 0.2s;
+  cursor: pointer;
+  background: transparent;
+  white-space: nowrap;
+}
+.tab-btn:hover {
+  color: var(--text);
+  background: var(--surface2);
+}
+.tab-btn.active {
+  color: var(--primary);
+  background: var(--surface);
+  border-color: var(--primary);
+}
+
+/* ── Recharts overrides ──────────────────────────────────────────────────── */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  font-size: 0.8rem !important;
+  color: var(--text) !important;
+}
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical   line {
+  stroke: var(--border) !important;
+  stroke-opacity: 0.6 !important;
+}
+.recharts-text { fill: var(--muted) !important; font-size: 11px !important; }
+
+/* ── Shimmer Skeleton ────────────────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface) 0%,
+    var(--surface2) 50%,
+    var(--surface) 100%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.8s infinite;
+  border-radius: 6px;
+}
+
+/* ── Dropdown ────────────────────────────────────────────────────────────── */
+.select-field {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 0.45rem 0.8rem;
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  outline: none;
+}
+.select-field:focus { border-color: var(--primary); }
+
+/* ── Badge ───────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.badge-up   { background: rgba(74,122,58,0.15);  color: var(--success); }
+.badge-down { background: rgba(160,48,48,0.15);  color: var(--danger);  }
+
+/* ── Table ───────────────────────────────────────────────────────────────── */
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th {
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.data-table td {
+  padding: 0.7rem 1rem;
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--border);
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text);
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--surface2); }
