@@ -45,6 +45,25 @@ export interface ReturnRecord {
 }
 
 async function get<T>(path: string): Promise<T> {
+  // Use static JSON mocks in production on Vercel
+  if (process.env.NODE_ENV === "production") {
+    const isCompare = path.startsWith("/api/compare");
+    let jsonPath = path.replace("/api/", "/mock_api/");
+    
+    if (isCompare) {
+      jsonPath = jsonPath.replace("?", "_").replace(/=/g, "_").replace(/&/g, "_") + ".json";
+    } else if (path.includes("?")) {
+      jsonPath = jsonPath.replace("?", "_").replace(/=/g, "_").replace(/&/g, "_") + ".json";
+    } else {
+      jsonPath = jsonPath + ".json";
+    }
+    
+    // Make sure we fetch from the current origin
+    const res = await fetch(jsonPath, { next: { revalidate: 60 } });
+    if (!res.ok) throw new Error(`Static API ${jsonPath} → ${res.status}`);
+    return res.json() as Promise<T>;
+  }
+
   const res = await fetch(`${BASE}${path}`, { next: { revalidate: 60 } });
   if (!res.ok) throw new Error(`API ${path} → ${res.status}`);
   return res.json() as Promise<T>;
