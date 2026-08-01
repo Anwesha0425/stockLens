@@ -59,6 +59,11 @@ When initially running the model on Google Colab, we identified two main issues:
 - The target variable was changed from absolute price to **Percentage Return**, forcing the LSTM to learn momentum rather than memorizing price levels.
 - Added a `returns_to_prices` helper to convert the predicted returns back into absolute dollars for accurate plotting and evaluation.
 
+### Model Evaluation Output
+Here is the updated multivariate model predicting Apple (AAPL) stock prices compared against the baselines:
+
+![Model Output Screenshot](backend/models/AAPL_evaluation.png)
+
 ### Evaluation Methodology
 
 This project implements the same evaluation standards used in production ML engineering:
