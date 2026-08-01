@@ -49,6 +49,16 @@ Each fetch is **cached as a dated Parquet snapshot** (`data/{TICKER}_{date}.parq
 
 ## 🤖 ML Engineering
 
+### Recent Improvements (Colab Training)
+
+When initially running the model on Google Colab, we identified two main issues:
+1. **XGBoost Metric Bug:** A `ValueError` caused by inconsistent array samples (251 vs 250) during evaluation because the Naive baseline loses the very first day. **Solution:** We meticulously aligned the slices for LSTM, XGBoost, and Naive models so they all evaluate on the exact same `n_common` dataset slice.
+2. **MASE > 1 (Failing to beat the naive baseline):** The initial LSTM model had a MASE (Mean Absolute Scaled Error) > 1, meaning it performed worse than a naive "shift-by-1" guess. This happened because the model was trying to predict absolute non-stationary prices using only a single feature (Close price).
+**Solution:** We completely overhauled the data pipeline to support **Multivariate Feature Engineering**:
+- The model now ingests 5 features simultaneously: `Close`, `Volume`, `RSI`, `MACD`, and `Return`.
+- The target variable was changed from absolute price to **Percentage Return**, forcing the LSTM to learn momentum rather than memorizing price levels.
+- Added a `returns_to_prices` helper to convert the predicted returns back into absolute dollars for accurate plotting and evaluation.
+
 ### Evaluation Methodology
 
 This project implements the same evaluation standards used in production ML engineering:
@@ -63,10 +73,10 @@ This project implements the same evaluation standards used in production ML engi
 | **Tracking** | MLflow experiment logging (hyperparams, metrics, artifacts) |
 | **Reproducibility** | Dated Parquet cache + logged date ranges |
 
-### Model: Bidirectional LSTM
+### Model: Bidirectional LSTM (Multivariate)
 
 ```
-Input(lookback=60)
+Input(lookback=60, features=5)
   → Bidirectional LSTM(128, return_sequences=True)
   → Dropout(0.2)
   → LSTM(64, return_sequences=True)
