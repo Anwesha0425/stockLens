@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/stock-prediction/backend/mlruns/990997029914852081/237463d185b34ec491b53195ce8b159e/artifacts
+end_time: 1785593606831
+entry_point_name: ''
+experiment_id: '990997029914852081'
+lifecycle_stage: active
+run_id: 237463d185b34ec491b53195ce8b159e
+run_name: AAPL_2026-08-01
+run_uuid: 237463d185b34ec491b53195ce8b159e
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1785593531981
+status: 4
+tags: []
+user_id: anwes

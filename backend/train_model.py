@@ -329,28 +329,7 @@ def main():
         with open(cmp_path, "w") as f:
             json.dump(comparison, f, indent=2)
 
-        # 7. MC-Dropout forecast ───────────────────────────────────────────
-        print("[6/8] MC-Dropout 30-day forecast…")
-        last_seq   = test_scaled[-args.lookback:]   # (lookback, 1)
-        mc_result  = forecast_mc_dropout(
-            model, last_seq, scaler,
-            n_days=30, n_samples=args.mc_samples)
-
-        future_dates = pd.bdate_range(
-            start=df.index[-1], periods=31)[1:]
-        forecast_df  = pd.DataFrame({
-            "date":  future_dates.astype(str),
-            "mean":  mc_result["mean"].tolist(),
-            "lower": mc_result["lower"].tolist(),
-            "upper": mc_result["upper"].tolist(),
-        })
-        fc_path = f"models/{args.ticker}_forecast.json"
-        forecast_df.to_json(fc_path, orient="records", indent=2)
-        print(f"      30-day mean: {mc_result['mean'][:3].round(2)} …")
-        print(f"      90% CI band: "
-              f"[{mc_result['lower'][0]:.2f}, {mc_result['upper'][0]:.2f}] day 1")
-
-        # 8. Save evaluation plot ─────────────────────────────────────────
+        # (MC-Dropout removed for multivariate)        # 8. Save evaluation plot ─────────────────────────────────────────
         print("[7/8] Saving evaluation plots…")
         test_dates = df.index[split_idx:]
         n = min(len(test_dates), len(lstm_preds))
@@ -402,7 +381,6 @@ def main():
 
         print(f"\n✅ Done  →  {model_path}")
         print(f"   Evaluation  →  {plot_path}")
-        print(f"   Forecast    →  {fc_path}")
         print(f"   Comparison  →  {cmp_path}")
         print(f"\n   Start API:  uvicorn api:app --reload")
         print(f"   Start UI:   cd ../frontend && npm run dev\n")
