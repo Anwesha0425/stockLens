@@ -110,10 +110,10 @@ def build_lag_features(series: pd.Series, n_lags: int = 60) -> pd.DataFrame:
     avg_gain = gain.rolling(14, min_periods=1).mean()
     avg_loss = loss.rolling(14, min_periods=1).mean()
     rs       = avg_gain / (avg_loss + 1e-9)
-    df["rsi"]     = 100 - (100 / (1 + rs))
+    df["rsi"]     = (100 - (100 / (1 + rs))).shift(1)
     ema12         = df["close"].ewm(span=12, adjust=False).mean()
     ema26         = df["close"].ewm(span=26, adjust=False).mean()
-    df["macd"]    = ema12 - ema26
+    df["macd"]    = (ema12 - ema26).shift(1)
     df["return1"] = df["close"].pct_change()
 
     df.dropna(inplace=True)
@@ -151,16 +151,12 @@ def create_sequences(features_scaled: np.ndarray, target_scaled: np.ndarray, loo
 
 # ── Metrics ────────────────────────────────────────────────────────────────────
 
-def returns_to_prices(last_price: float, returns: np.ndarray) -> np.ndarray:
+def returns_to_prices(base_prices: np.ndarray, returns: np.ndarray) -> np.ndarray:
     """
-    Convert an array of returns back into absolute prices given the last known price.
-    Prices[0] = last_price * (1 + returns[0])
-    Prices[1] = Prices[0] * (1 + returns[1])
+    Convert an array of returns back into absolute prices given the true base prices.
+    PredictedPrice_t = ActualPrice_{t-1} * (1 + PredictedReturn_t)
     """
-    prices = [last_price * (1 + returns[0])]
-    for r in returns[1:]:
-        prices.append(prices[-1] * (1 + r))
-    return np.array(prices)
+    return base_prices * (1 + returns)
 
 
 def compute_metrics(actual: np.ndarray, predicted: np.ndarray,

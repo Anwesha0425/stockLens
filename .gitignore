@@ -1,6 +1,21 @@
+# Python
 venv/
 .venv/
 env/
 __pycache__/
 *.pyc
+*.pyo
 .env
+
+# Large ML artifacts (models, data snapshots) — not for version control
+backend/models/*.keras
+backend/models/_fold_*.keras
+backend/data/*.parquet
+backend/mlruns/
+
+# Colab export redundant copies (standalone notebook is self-contained)
+colab_export/requirements.txt
+colab_export/train_model.py
+colab_export/utils.py
+colab_export/xgboost_model.py
+colab_export/update_colab.py

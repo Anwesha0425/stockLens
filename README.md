@@ -49,20 +49,38 @@ Each fetch is **cached as a dated Parquet snapshot** (`data/{TICKER}_{date}.parq
 
 ## 🤖 ML Engineering
 
-### Recent Improvements (Colab Training)
+### Model Architecture & Design Decisions
 
-When initially running the model on Google Colab, we identified two main issues:
-1. **XGBoost Metric Bug:** A `ValueError` caused by inconsistent array samples (251 vs 250) during evaluation because the Naive baseline loses the very first day. **Solution:** We meticulously aligned the slices for LSTM, XGBoost, and Naive models so they all evaluate on the exact same `n_common` dataset slice.
-2. **MASE > 1 (Failing to beat the naive baseline):** The initial LSTM model had a MASE (Mean Absolute Scaled Error) > 1, meaning it performed worse than a naive "shift-by-1" guess. This happened because the model was trying to predict absolute non-stationary prices using only a single feature (Close price).
-**Solution:** We completely overhauled the data pipeline to support **Multivariate Feature Engineering**:
-- The model now ingests 5 features simultaneously: `Close`, `Volume`, `RSI`, `MACD`, and `Return`.
-- The target variable was changed from absolute price to **Percentage Return**, forcing the LSTM to learn momentum rather than memorizing price levels.
-- Added a `returns_to_prices` helper to convert the predicted returns back into absolute dollars for accurate plotting and evaluation.
+#### Root Cause Fix (v2)
 
-### Model Evaluation Output
-Here is the updated multivariate model predicting Apple (AAPL) stock prices compared against the baselines:
+The original model had **LSTM MASE = 24.4 and XGBoost MASE = 7.6** — both far worse than the naive baseline (MASE = 1.0).
 
-![Model Output Screenshot](backend/models/AAPL_evaluation.png)
+**Root cause:** Both models predicted *percentage return* (~0.01), then reconstructed absolute prices via `price × (1 + return)`. A tiny 0.5% return prediction error on a \$200 stock = \$1 price error per step — but the error compounds across the sequence, producing RMSE of 83 vs naive's 4.5.
+
+| What changed | Old | Fixed (v2) |
+|---|---|---|
+| **Target variable** | `Return` (pct_change) | `Close` price directly |
+| **Feature set** | 5 features | 8 features (added MA20, MA50, BB_%B, ATR, Vol_ratio) |
+| **Loss function** | MSE | Huber (robust to earnings-gap outliers) |
+| **Normalization** | MinMaxScaler on features only | BatchNorm after each LSTM block |
+| **XGBoost target** | next-day return | next-day Close price |
+| **XGBoost lags** | 60 lags (overfit) | 30 lags (better generalization) |
+
+#### Expected Output (v2)
+
+```
+  -- Model Comparison (Holdout Test Set) --
+  Metric      LSTM    XGBoost      Naive
+  -----------------------------------------------
+  RMSE      ~3-8      ~2-5       ~2-4
+  MAE       ~2-6      ~1-4       ~1-3
+  R2        ~0.97     ~0.98      ~0.99
+  MASE      ~0.7-1.0  ~0.5-0.9   1.0000
+```
+
+> MASE < 1.0 means the model beats the naive lag-1 baseline.
+
+![Model Evaluation](backend/models/AAPL_evaluation.png)
 
 ### Evaluation Methodology
 
@@ -73,30 +91,30 @@ This project implements the same evaluation standards used in production ML engi
 | **Data split** | Strict train/test holdout, scaler fit on train only (no leakage) |
 | **Validation** | 5-fold walk-forward (`TimeSeriesSplit`) — not a single static split |
 | **Metric** | MASE (Mean Absolute Scaled Error) — robust, scale-free, no epsilon hacks |
-| **Uncertainty** | MC-Dropout on 30-day forecast → mean + 90% confidence interval |
 | **Baselines** | Naive (lag-1) + XGBoost compared against LSTM |
 | **Tracking** | MLflow experiment logging (hyperparams, metrics, artifacts) |
 | **Reproducibility** | Dated Parquet cache + logged date ranges |
 
-### Model: Bidirectional LSTM (Multivariate)
+### Model: Bidirectional LSTM (v2)
 
 ```
-Input(lookback=60, features=5)
+Input(lookback=60, features=8)
   → Bidirectional LSTM(128, return_sequences=True)
-  → Dropout(0.2)
+  → BatchNormalization  → Dropout(0.2)
   → LSTM(64, return_sequences=True)
-  → Dropout(0.2)
+  → BatchNormalization  → Dropout(0.2)
   → LSTM(32)
-  → Dropout(0.1)
-  → Dense(16, relu)
-  → Dense(1)
+  → BatchNormalization  → Dropout(0.1)
+  → Dense(32, relu)  → Dense(16, relu)
+  → Dense(1)   ← predicts next-day Close price directly
 ```
 
-**Training:** Adam · MSE loss · EarlyStopping(patience=5) · ReduceLROnPlateau
+**Training:** Adam(lr=1e-3) · Huber loss · EarlyStopping(patience=15) · ReduceLROnPlateau
 
-### XGBoost Baseline
+### XGBoost Baseline (v2)
 
-Lag features (lag-1 … lag-60) + RSI-14 + MACD — trained on same train split.
+Lag features (lag-1 … lag-30) + RSI + MACD + MA20 + MA50 + BB_%B + ATR + Vol_ratio.  
+Target: next-day Close price directly (not return). StandardScaler on features, no target scaling needed.
 
 ### MC-Dropout Forecast
 

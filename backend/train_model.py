@@ -271,10 +271,10 @@ def main():
         actual_test_return = targ_scaler.inverse_transform(y_test.reshape(-1, 1)).flatten()
         
         # We need absolute prices for true evaluation (dollars)
-        last_train_price = df["Close"].iloc[split_idx - 1]
+        test_base_prices = df["Close"].values[split_idx - 1 : split_idx - 1 + len(actual_test_return)]
         
-        lstm_preds  = returns_to_prices(last_train_price, lstm_preds_return)
-        actual_test = returns_to_prices(last_train_price, actual_test_return)
+        lstm_preds  = returns_to_prices(test_base_prices, lstm_preds_return)
+        actual_test = returns_to_prices(test_base_prices, actual_test_return)
         
         naive_preds = naive_forecast(actual_test)
 
@@ -285,9 +285,13 @@ def main():
         print("      → Training XGBoost baseline…")
         xgb_model, xgb_scaler, xgb_cols = train_xgboost(
             df["Close"], split_idx, n_lags=args.lookback)
-        xgb_preds = predict_xgboost(
+        xgb_preds_return = predict_xgboost(
             xgb_model, df["Close"], split_idx,
             xgb_scaler, xgb_cols, n_lags=args.lookback)
+            
+        xgb_base_prices = df["Close"].values[split_idx - 1 : split_idx - 1 + len(xgb_preds_return)]
+        xgb_preds = returns_to_prices(xgb_base_prices, xgb_preds_return)
+        
         n_common = min(len(actual_test), len(xgb_preds))
         
         xgb_metrics = compute_metrics(

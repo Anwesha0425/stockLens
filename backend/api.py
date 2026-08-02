@@ -93,15 +93,29 @@ def get_stock(ticker: str, period: str = "2y"):
 
 @app.get("/api/predict/{ticker}")
 def get_predictions(ticker: str):
-    """LSTM test-set predictions + MC-Dropout 30-day forecast."""
+    """LSTM test-set predictions + optional MC-Dropout 30-day forecast."""
     t = ticker.upper()
-    preds    = _load_json(MODELS_DIR / f"{t}_predictions.json")
-    forecast = _load_json(MODELS_DIR / f"{t}_forecast.json")
+    preds = _load_json(MODELS_DIR / f"{t}_predictions.json")
+    
+    forecast_path = MODELS_DIR / f"{t}_forecast.json"
+    forecast = None
+    if forecast_path.exists():
+        with open(forecast_path) as f:
+            forecast = json.load(f)
+            
     return {
         "ticker":    t,
         "predictions": preds,
         "forecast":    forecast,
     }
+
+
+@app.get("/api/models/{ticker}")
+def get_models(ticker: str):
+    """LSTM vs XGBoost vs Naive metrics table."""
+    t = ticker.upper()
+    comparison = _load_json(MODELS_DIR / f"{t}_comparison.json")
+    return comparison
 
 
 @app.get("/api/compare")

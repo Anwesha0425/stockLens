@@ -21,7 +21,7 @@ def train_xgboost(close_series: pd.Series, split_idx: int,
 
     Returns:
         model:   fitted XGBRegressor
-        scaler:  fitted StandardScaler (for features only — target is raw price)
+        scaler:  fitted StandardScaler (for features only — target is return)
         cols:    feature column names (for consistent ordering at predict time)
     """
     feat_df = build_lag_features(close_series, n_lags=n_lags)
@@ -29,8 +29,8 @@ def train_xgboost(close_series: pd.Series, split_idx: int,
     # Align split to feature DataFrame index
     feat_train = feat_df[feat_df.index < close_series.index[split_idx]]
 
-    X_train = feat_train.drop(columns=["close"]).values
-    y_train = feat_train["close"].values
+    X_train = feat_train.drop(columns=["close", "return1"]).values
+    y_train = feat_train["return1"].values
 
     scaler  = StandardScaler()
     X_train = scaler.fit_transform(X_train)
@@ -48,7 +48,7 @@ def train_xgboost(close_series: pd.Series, split_idx: int,
               eval_set     = [(X_train, y_train)],
               verbose      = 0)
 
-    cols = feat_df.drop(columns=["close"]).columns.tolist()
+    cols = feat_df.drop(columns=["close", "return1"]).columns.tolist()
     return model, scaler, cols
 
 
